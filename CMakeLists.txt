@@ -12,16 +12,55 @@ if (GIT_FOUND)
     execute_process(
         COMMAND ${GIT_EXECUTABLE} rev-parse --show-toplevel
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-        OUTPUT_VARIABLE LIBIIO_GIT_REPO
+        OUTPUT_VARIABLE LIBCHIMERA_GIT_REPO
         OUTPUT_STRIP_TRAILING_WHITESPACE
     )
 
-    if (${LIBIIO_GIT_REPO} MATCHES ${CMAKE_CURRENT_SOURCE_DIR})
+    if (${LIBCHIMERA_GIT_REPO} MATCHES ${CMAKE_CURRENT_SOURCE_DIR})
         execute_process(
             COMMAND ${GIT_EXECUTABLE} rev-parse --short HEAD
             WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-            OUTPUT_VARIABLE LIBIIO_VERSION_GIT
+            OUTPUT_VARIABLE LIBCHIMERA_VERSION_GIT
             OUTPUT_STRIP_TRAILING_WHITESPACE
         )
     endif()
 endif()
+
+if (NOT LIBCHIMERA_VERSION_GIT)
+    set(LIBCHIMERA_VERSION_GIT v${VERSION})
+endif()
+
+#replace this stuff with libsystemd
+#find_library(LIBUSB_LIBRARIES usb-1.0)
+#find_path(LIBUSB_INCLUDE_DIR libusb-1.0/libusb.h)
+#if (LIBUSB_LIBRARIES AND LIBUSB_INCLUDE_DIR)
+#    option(WITH_USB_BACKEND "Enable the libusb backend" ON)
+#
+#    if(WITH_USB_BACKEND)
+#        add_definitions(-DUSB_BACKEND=1)
+#        set(LIBCHIMERA_CFILES ${LIBCHIMERA_CFILES} usb.c)
+#        set(LIBS_TO_LINK ${LIBS_TO_LINK} ${LIBUSB_LIBRARIES})
+#        set(CHIMERAD_CLIENT 1)
+#        set(NEED_LIBXML2 1)
+#        set(NEED_THREADS 1)
+#
+#        include_directories(${LIBUSB_INCLUDE_DIR})
+#    endif()
+#endif()
+
+set(LIBCHIMERA_CFILES log.c)
+set(LIBCHIMERA_HEADERS log.h)
+
+add_library(chimera ${LIBCHIMERA_CFILES} ${LIBCHIMERA_HEADERS})
+set_target_properties(chimera PROPERTIES
+    VERSION ${VERSION}
+    SOVERSION ${LIBCHIMERA_VERSION_MAJOR}
+)
+#    FRAMEWORK TRUE
+#    PUBLIC_HEADER ${LIBCHIMERA_HEADERS}
+#    C_STANDARD 99
+#    C_STANDARD_REQUIRED ON
+#    C_EXTENSIONS OFF
+target_link_libraries(chimera LINK_PRIVATE ${LIBS_TO_LINK})
+
+configure_file(config.h.cmakein ${CMAKE_CURRENT_BINARY_DIR}/config.h)
