@@ -1,0 +1,27 @@
+cmake_minimum_required(VERSION 2.8.7)
+project(libchimera C)
+
+set(LIBCHIMERA_VERSION_MAJOR 0)
+set(LIBCHIMERA_VERSION_MINOR 1)
+set(LIBCHIMERA_VERSION_BUGFIX 0)
+set(VERSION "${LIBCHIMERA_VERSION_MAJOR}.${LIBCHIMERA_VERSION_MINOR}.${LIBCHIMERA_VERSION_BUGFIX}")
+
+# Get the GIT hash of the latest commit
+include(FindGit OPTIONAL)
+if (GIT_FOUND)
+    execute_process(
+        COMMAND ${GIT_EXECUTABLE} rev-parse --show-toplevel
+        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+        OUTPUT_VARIABLE LIBIIO_GIT_REPO
+        OUTPUT_STRIP_TRAILING_WHITESPACE
+    )
+
+    if (${LIBIIO_GIT_REPO} MATCHES ${CMAKE_CURRENT_SOURCE_DIR})
+        execute_process(
+            COMMAND ${GIT_EXECUTABLE} rev-parse --short HEAD
+            WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+            OUTPUT_VARIABLE LIBIIO_VERSION_GIT
+            OUTPUT_STRIP_TRAILING_WHITESPACE
+        )
+    endif()
+endif()
