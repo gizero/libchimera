@@ -1,10 +1,12 @@
 cmake_minimum_required(VERSION 2.8.7)
-project(libchimera C)
+project(libchimera)
 
 set(LIBCHIMERA_VERSION_MAJOR 0)
 set(LIBCHIMERA_VERSION_MINOR 1)
 set(LIBCHIMERA_VERSION_BUGFIX 0)
 set(VERSION "${LIBCHIMERA_VERSION_MAJOR}.${LIBCHIMERA_VERSION_MINOR}.${LIBCHIMERA_VERSION_BUGFIX}")
+
+include(GNUInstallDirs)
 
 # Get the GIT hash of the latest commit
 include(FindGit OPTIONAL)
@@ -55,12 +57,16 @@ add_library(chimera ${LIBCHIMERA_CFILES} ${LIBCHIMERA_HEADERS})
 set_target_properties(chimera PROPERTIES
     VERSION ${VERSION}
     SOVERSION ${LIBCHIMERA_VERSION_MAJOR}
+    PUBLIC_HEADER ${LIBCHIMERA_HEADERS}
 )
 #    FRAMEWORK TRUE
-#    PUBLIC_HEADER ${LIBCHIMERA_HEADERS}
 #    C_STANDARD 99
 #    C_STANDARD_REQUIRED ON
 #    C_EXTENSIONS OFF
 target_link_libraries(chimera LINK_PRIVATE ${LIBS_TO_LINK})
+
+install(TARGETS chimera
+        ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+        PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 
 configure_file(config.h.cmakein ${CMAKE_CURRENT_BINARY_DIR}/config.h)
